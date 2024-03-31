@@ -21,10 +21,10 @@ class User {
   password: string;
 
   @Column('date', { nullable: false })
-  birth_date: string;
+  birth_date: Date;
 
   @Column('boolean', { nullable: false, default: true })
-  active: string;
+  active: boolean;
 
   @CreateDateColumn()
   created_at: Date;
