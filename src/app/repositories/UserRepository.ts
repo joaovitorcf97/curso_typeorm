@@ -1,19 +1,42 @@
+import bcrypt from 'bcrypt';
+import { ValidationErrorItem } from 'joi';
 import { AppDataSource } from '../../database/dataSource';
 import User from '../entities/User';
 import { IUserInput, IUserOutput } from '../interfaces/IUser';
 import ErrorExtension from '../utils/ErrorExtension';
+import userSchemaValidation from '../utils/validations/userSchemaValidation';
 
 class UserRepository {
   private static usersRepository = AppDataSource.getRepository(User);
 
   static async getUsers(): Promise<IUserOutput[]> {
-    return this.usersRepository.find();
+    const users = await this.usersRepository.find();
+
+    return users.map(({ password, ...user }) => user);
   }
 
   static async newUser(user: IUserInput): Promise<IUserOutput> {
+    const { error } = userSchemaValidation.validate(user, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      const validationsErrors = error.details.map(
+        (error: ValidationErrorItem) => error.message,
+      );
+
+      throw new ErrorExtension(400, 'Error de validação', validationsErrors);
+    }
+
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+
+    user.password = hashedPassword;
+
     const createdUser = await this.usersRepository.save(user);
 
-    return createdUser;
+    const { password, ...userWithoutPassword } = createdUser;
+
+    return userWithoutPassword;
   }
 
   static async getUser(userId: number): Promise<IUserOutput | null> {
@@ -23,7 +46,9 @@ class UserRepository {
       throw new ErrorExtension(404, 'User not found.');
     }
 
-    return user;
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
   }
 
   static async updateUser(userId: number, user: IUserInput): Promise<string> {
@@ -31,6 +56,12 @@ class UserRepository {
 
     if (!userExist) {
       throw new ErrorExtension(404, 'User not found.');
+    }
+
+    if (user.password) {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+
+      user.password = hashedPassword;
     }
 
     await this.usersRepository.update(userId, user);

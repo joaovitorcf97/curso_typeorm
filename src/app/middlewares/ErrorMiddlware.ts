@@ -7,9 +7,9 @@ const httpErrorMiddleware = (
   response: Response,
   _next: NextFunction,
 ) => {
-  const { status, message } = error as ErrorExtension;
+  const { status, message, errors } = error as ErrorExtension;
 
-  response.status(status || 500).json({ message });
+  response.status(status || 500).json({ message, errors });
 };
 
 export default httpErrorMiddleware;
