@@ -2,7 +2,9 @@ import bcrypt from 'bcrypt';
 import { ValidationErrorItem } from 'joi';
 import { AppDataSource } from '../../database/dataSource';
 import User from '../entities/User';
+import { ILogin } from '../interfaces/ILogin';
 import { IUserInput, IUserOutput } from '../interfaces/IUser';
+import Auth from '../utils/Auth';
 import ErrorExtension from '../utils/ErrorExtension';
 import userSchemaValidation from '../utils/validations/userSchemaValidation';
 
@@ -79,6 +81,42 @@ class UserRepository {
     await this.usersRepository.delete(userId);
 
     return 'User was deleted.';
+  }
+
+  static async getUserByEmail(email: string): Promise<IUserOutput | null> {
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  static async auth(loginData: ILogin): Promise<string> {
+    const { email, password } = loginData;
+
+    if (!email || !password) {
+      throw new ErrorExtension(401, 'Email and password are required.');
+    }
+
+    const user = await this.getUserByEmail(email);
+
+    if (!user) {
+      throw new ErrorExtension(401, 'Invalid credential.');
+    }
+
+    if (password) {
+      const passwordVerification = bcrypt.compare(password, user.password!);
+
+      if (!passwordVerification) {
+        throw new ErrorExtension(401, 'Invalid credential.');
+      }
+    }
+
+    const payload = {
+      name: user.name,
+      email: user.email,
+    };
+
+    const tokenGenerator = new Auth();
+    const token = tokenGenerator.jwtGenerator(payload);
+
+    return token;
   }
 }
 

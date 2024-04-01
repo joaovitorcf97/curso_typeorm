@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import authenticateMiddleware from '../middlewares/AuthMiddleware';
 import UserRepository from '../repositories/UserRepository';
 
 class UserController {
@@ -10,11 +11,12 @@ class UserController {
   }
 
   private initializeRoutes() {
-    this.router.get('/', this.getAllUsers);
     this.router.post('/', this.createUser);
-    this.router.get('/:id', this.getUser);
+    this.router.get('/', this.getAllUsers);
+    this.router.get('/:id', authenticateMiddleware, this.getUser);
     this.router.put('/:id', this.updateUser);
     this.router.delete('/:id', this.deleteUser);
+    this.router.post('/auth', this.authenticatedUser);
   }
 
   private async getAllUsers(request: Request, response: Response) {
@@ -48,6 +50,12 @@ class UserController {
     const userDeleted = await UserRepository.deleteUser(id);
 
     response.status(200).json({ message: userDeleted });
+  }
+
+  private async authenticatedUser(request: Request, response: Response) {
+    const userAuthenticated = await UserRepository.auth(request.body);
+
+    response.status(200).json({ token: userAuthenticated });
   }
 }
 
