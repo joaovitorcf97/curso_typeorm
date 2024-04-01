@@ -15,6 +15,7 @@ class UserRepository {
     const users = await this.usersRepository.find({
       relations: {
         address: true,
+        userProjects: true,
       },
     });
 

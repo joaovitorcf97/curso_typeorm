@@ -6,25 +6,24 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import Address from './Address';
 import UserProjects from './UserProject';
 
-@Entity('users')
-class User {
+@Entity('projects')
+class Projects {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('varchar', { nullable: false, length: 100 })
+  @Column('varchar', { nullable: false, length: 100, unique: true })
   name: string;
 
-  @Column('varchar', { nullable: false, length: 100, unique: true })
-  email: string;
-
-  @Column('varchar', { nullable: false, length: 100 })
-  password: string;
+  @Column('varchar', { nullable: false, length: 255 })
+  description: string;
 
   @Column('date', { nullable: false })
-  birth_date: Date;
+  start_at: Date;
+
+  @Column('date', { nullable: false })
+  end_at: Date;
 
   @Column('boolean', { nullable: false, default: true })
   active: boolean;
@@ -35,11 +34,8 @@ class User {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => Address, (address) => address.users)
-  address: Address[];
-
-  @OneToMany(() => UserProjects, (userProjects) => userProjects.users)
+  @OneToMany(() => UserProjects, (userProjects) => userProjects.projects)
   userProjects: UserProjects[];
 }
 
-export default User;
+export default Projects;

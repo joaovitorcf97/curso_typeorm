@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import Address from '../app/entities/Address';
+import Projects from '../app/entities/Project';
 import User from '../app/entities/User';
+import UserProjects from '../app/entities/UserProject';
 import { CreateUsersTable1711858586395 } from './migrations/1711858586395-CreateUsersTable';
 import { CreateSeedUsersTable1711860491430 } from './migrations/1711860491430-CreateSeedUsersTable';
 import { CreateAddressTable1711992892829 } from './migrations/1711992892829-CreateAddressTable';
@@ -17,7 +19,7 @@ export const AppDataSource = new DataSource({
   database: 'curso_typeorm',
   synchronize: true,
   logging: false,
-  entities: [User, Address],
+  entities: [User, Address, Projects, UserProjects],
   migrations: [
     CreateUsersTable1711858586395,
     CreateSeedUsersTable1711860491430,

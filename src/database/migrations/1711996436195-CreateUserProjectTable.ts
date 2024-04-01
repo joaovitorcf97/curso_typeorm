@@ -22,7 +22,6 @@ export class CreateUserProjectTable1711996436195 implements MigrationInterface {
           {
             name: 'id_user',
             type: 'int',
-
             isNullable: false,
           },
           {
