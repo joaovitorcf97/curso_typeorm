@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import Address from './Address';
 
 @Entity('users')
 class User {
@@ -31,6 +33,9 @@ class User {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => Address, (address) => address.users)
+  address: Address[];
 }
 
 export default User;

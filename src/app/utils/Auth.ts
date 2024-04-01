@@ -24,7 +24,6 @@ class Auth {
   }
 
   public authenticateToken(token: string) {
-    console.log('aqui 01');
     if (!token) {
       throw new ErrorExtension(401, 'Token not found!');
     }
